@@ -28,6 +28,7 @@ import Sofa from "./Sofa.vue"
 import AgeAndFunction from "./AgeAndFunction.vue"
 import Comorbidities from "./Comorbidities.vue"
 import PrioritySummary from "./PrioritySummary.vue"
+import { mapMutations } from "vuex"
 
 export default {
   data: function () {
@@ -43,6 +44,9 @@ export default {
     return data
   },
   methods: {
+    ...mapMutations({
+      resetState: "resetState",
+    }),
     sofaChanged(newScore) {
       this.scores.sofa = newScore
       // this.$store.commit("changePriorityScore", this.scores)
@@ -58,7 +62,7 @@ export default {
     },
   },
   mounted() {
-    this.$store.commit("reset")
+    this.resetState()
     console.log("reset")
   },
   components: {

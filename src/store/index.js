@@ -1,20 +1,15 @@
 import Vue from "vue"
 import Vuex from "vuex"
+import { levels } from "./consts"
 
 Vue.use(Vuex)
 
-function resetData() {
-  return {
-    priorityScore: {
-      age: 0,
-      functionality: 0,
-      sofa: 0,
-      morbidity: 0,
-    },
+const getDefaultState = () => ({
+  data: {
     initialAssessment: {
-      age: 0,
+      age: 1,
       ecog: 0,
-      frailty: 0,
+      frailty: 1,
       sofa: {
         respPaO2: 0,
         respFiO2: 0,
@@ -45,36 +40,96 @@ function resetData() {
         liver: 0,
       },
     },
-  }
-}
-
-export const store = new Vuex.Store({
-  state: {
-    data: resetData(),
   },
+  initialAssessment: {
+    age: null,
+    ecog: null,
+    frailty: null,
+    sofa: {
+      respPaO2: 0,
+      respFiO2: 0,
+      coagulation: 0,
+      liver: 0,
+      cardioMap: 0,
+      cardioDop: 0,
+      cardioEpi: 0,
+      cardioDob: 0,
+      nervous: 0,
+      renalCreat: 0,
+      renalUrine: 0,
+    },
+    comorbidities: {
+      renal: 0,
+      cancer: 0,
+      lung: 0,
+      cardiac: 0,
+      burns: 0,
+      physical: 0,
+      vascular: 0,
+      surgery: 0,
+      hypertension: 0,
+      diabetes: 0,
+      bmi: 0,
+      drugs: 0,
+      hiv: 0,
+      liver: 0,
+    },
+  },
+})
+
+export default new Vuex.Store({
+  state: getDefaultState(),
   mutations: {
-    setAgeAndFunction(state, newFrailty) {
-      state.data.initialAssessment.age = +newFrailty.age
-      state.data.initialAssessment.ecog = +newFrailty.ecog
-      state.data.initialAssessment.frailty = +newFrailty.frailty
+    setAge(state, age) {
+      state.initialAssessment = {
+        ...state.initialAssessment,
+        age,
+      }
     },
-    setInitialComorbidities(state, newComorbidities) {
-      for (var key in newComorbidities)
-        Vue.set(
-          state.data.initialAssessment.comorbidities,
-          key,
-          +newComorbidities[key]
-        )
+    setEcog(state, ecog) {
+      state.initialAssessment = {
+        ...state.initialAssessment,
+        ecog,
+      }
     },
-    setInitialSofa(state, newSofa) {
-      for (var key in newSofa)
-        Vue.set(state.data.initialAssessment.sofa, key, +newSofa[key])
+    setFrailty(state, frailty) {
+      state.initialAssessment = {
+        ...state.initialAssessment,
+        frailty,
+      }
     },
-    reset(state) {
-      state.data = resetData()
+    // setAgeAndFunction(state, newFrailty) {
+    //   state.data.initialAssessment.age = +newFrailty.age
+    //   state.data.initialAssessment.ecog = +newFrailty.ecog
+    //   state.data.initialAssessment.frailty = +newFrailty.frailty
+    // },
+    // setInitialComorbidities(state, newComorbidities) {
+    //   for (var key in newComorbidities)
+    //     Vue.set(
+    //       state.data.initialAssessment.comorbidities,
+    //       key,
+    //       +newComorbidities[key]
+    //     )
+    // },
+    // setInitialSofa(state, newSofa) {
+    //   for (var key in newSofa)
+    //     Vue.set(state.data.initialAssessment.sofa, key, +newSofa[key])
+    // },
+    resetState(state) {
+      Object.assign(state, getDefaultState())
     },
   },
   getters: {
+    ageBracket: (state) => {
+      const { age } = state.initialAssessment
+      return age ? levels.age[age].score : null
+    },
+    functionalityBracket: (state) => {
+      const { frailty, ecog } = state.initialAssessment
+      const frailtyScore = frailty ? levels.frailty[frailty].score : null
+      const ecogScore = ecog ? levels.ecog[ecog].score : null
+      return Math.max(frailtyScore, ecogScore)
+    },
     initialPriorityScore: (state, getters) => {
       const ia = state.data.initialAssessment
       const functionalityScore = Math.max(ia.frailty, ia.ecog)

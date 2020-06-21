@@ -3,7 +3,7 @@ import "es6-object-assign/dist/object-assign-auto"
 
 import Vue from "vue"
 import router from "./router"
-import { store } from "./store/store"
+import store from "./store"
 
 Vue.use(router)
 
